@@ -6,11 +6,58 @@
 using namespace std;
 using namespace sf;
 
+//Initializes empty 10x20 grid
+void initGrid(vector<vector<int>>& grid)
+{
+    vector<int> row = {1,0,0,0,0,0,0,0,0,1};
+
+    for (int i = 0; i < 20; i++)
+    {
+        grid.push_back(row);
+    }
+}
+
+//Helper function to help print current grid for debugging purposes
+void printGrid(vector<vector<int>> &grid)
+{
+    for (int i = 0; i < grid.size(); i++)
+    {
+        for (int j = 0; j < grid[i].size(); j++)
+        {
+            cout << grid[i][j];
+        }
+        cout << endl;
+    }
+}
+
+//Function that takes in the grid of pieces and draws the squares that are present at each location
+void drawGrid(RenderWindow& window, vector<vector<int>>& grid, Texture& gameArt)
+{
+    for (int i = 0; i < grid.size(); i++)
+    {
+        for (int j = 0; j < grid[i].size(); j++)
+        {
+            Sprite square;
+            square.setTexture(gameArt);
+            square.setTextureRect(IntRect(240, 688, 7, 7));
+            float scaleFactor = 5;
+            square.setPosition(j*7*scaleFactor + 225, i*7*scaleFactor + 50);
+            square.setScale(scaleFactor,scaleFactor);
+            if (grid[i][j] != 0)
+            {
+                window.draw(square);
+            }
+        }
+    }
+}
+
 int main()
 {
     RNG rng;
-    vector<vector<bool>> grid;
-    RenderWindow window(VideoMode(800, 800), "Tetris");
+    vector<vector<int>> grid;
+    initGrid(grid);
+
+    RenderWindow window(VideoMode(800, 750), "Tetris");
     Texture gameArt;
     gameArt.loadFromFile("sprites.png");
 
@@ -22,6 +69,11 @@ int main()
 
     bool xPressed = false;
     bool zPressed = false;
+
+    RectangleShape gameBackground;
+    gameBackground.setSize(Vector2f(350, 700));
+    gameBackground.setFillColor(Color::Black);
+    gameBackground.setPosition(225, 50);
 
     Clock clock;
     while (window.isOpen())
@@ -64,10 +116,12 @@ int main()
         zPressed = Keyboard::isKeyPressed(sf::Keyboard::Z);
 
         //*********************************** DRAWING *************************************************************
-        window.clear();
+        window.clear(Color(0,0,255));
 
+        
+        window.draw(gameBackground);
+        drawGrid(window, grid, gameArt);
         window.draw(TPiece);
-
         window.display();
     }
 

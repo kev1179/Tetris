@@ -76,13 +76,15 @@ int main()
 
     bool xPressed = false;
     bool zPressed = false;
+    bool leftPressed = false;
+    bool rightPressed = false;
 
     RectangleShape gameBackground;
     gameBackground.setSize(Vector2f(350, 700));
     gameBackground.setFillColor(Color::Black);
     gameBackground.setPosition(225, 50);
 
-    TPiece test(gameArt);
+    TPiece activePiece(gameArt);
     Clock clock;
     while (window.isOpen())
     {
@@ -95,9 +97,9 @@ int main()
                 window.close();
         }
 
-        if (time1.asMilliseconds()  >= 80 && time1.asMilliseconds() < 1000)
+        if (time1.asMilliseconds()  >= 300 && time1.asMilliseconds() < 1000 && activePiece.canMoveDown())
         {
-            //TPiece.setPosition(TPiece.getPosition().x, TPiece.getPosition().y + 9);
+            activePiece.fall();
             clock.restart();
         }
         
@@ -107,29 +109,43 @@ int main()
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::X) && !xPressed)
         {
 
-            //TPiece.setRotation(TPiece.getRotation() + 90);
+            activePiece.rotate("right");
             xPressed = Keyboard::isKeyPressed(sf::Keyboard::X);
-
         }
         
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && !zPressed)
         {
 
-            //TPiece.setRotation(TPiece.getRotation() - 90);
+            activePiece.rotate("left");
             zPressed = Keyboard::isKeyPressed(sf::Keyboard::Z);
-
         }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !leftPressed && activePiece.canMoveLeft())
+        {
+
+            activePiece.move("left");
+            leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !rightPressed && activePiece.canMoveRight())
+        {
+
+            activePiece.move("right");
+            rightPressed = Keyboard::isKeyPressed(sf::Keyboard::Right);
+        }
+
         xPressed = Keyboard::isKeyPressed(sf::Keyboard::X);
         zPressed = Keyboard::isKeyPressed(sf::Keyboard::Z);
-
+        leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
+        rightPressed = Keyboard::isKeyPressed(sf::Keyboard::Right);
         //*********************************** DRAWING *************************************************************
         window.clear(Color(0,0,255));
 
         
         window.draw(gameBackground);
         drawGrid(window, grid, gameArt);
-        vector<Sprite> v = test.getSprites();
+        vector<Sprite> v = activePiece.getSprites();
         for (int i = 0; i < v.size(); i++)
         {
             window.draw(v[i]);

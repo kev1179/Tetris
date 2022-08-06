@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include "TPiece.h"
+#include "Piece.h"
 
 using namespace std;
 using namespace sf;
@@ -84,7 +85,10 @@ int main()
     gameBackground.setFillColor(Color::Black);
     gameBackground.setPosition(225, 50);
 
-    TPiece activePiece(gameArt);
+    Piece* activePiece;
+    TPiece temp(gameArt);
+    activePiece = &temp;
+
     Clock clock;
     while (window.isOpen())
     {
@@ -97,9 +101,9 @@ int main()
                 window.close();
         }
 
-        if (time1.asMilliseconds()  >= 300 && time1.asMilliseconds() < 1000 && activePiece.canMoveDown())
+        if (time1.asMilliseconds()  >= 300 && time1.asMilliseconds() < 1000 && activePiece->canMoveDown(grid))
         {
-            activePiece.fall();
+            activePiece->fall();
             clock.restart();
         }
         
@@ -109,7 +113,7 @@ int main()
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::X) && !xPressed)
         {
 
-            activePiece.rotate("right");
+            activePiece->rotate("right");
             xPressed = Keyboard::isKeyPressed(sf::Keyboard::X);
         }
         
@@ -117,21 +121,21 @@ int main()
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && !zPressed)
         {
 
-            activePiece.rotate("left");
+            activePiece->rotate("left");
             zPressed = Keyboard::isKeyPressed(sf::Keyboard::Z);
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !leftPressed && activePiece.canMoveLeft())
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !leftPressed && activePiece->canMoveLeft(grid))
         {
 
-            activePiece.move("left");
+            activePiece->move("left");
             leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !rightPressed && activePiece.canMoveRight())
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !rightPressed && activePiece->canMoveRight(grid))
         {
 
-            activePiece.move("right");
+            activePiece->move("right");
             rightPressed = Keyboard::isKeyPressed(sf::Keyboard::Right);
         }
 
@@ -139,13 +143,22 @@ int main()
         zPressed = Keyboard::isKeyPressed(sf::Keyboard::Z);
         leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
         rightPressed = Keyboard::isKeyPressed(sf::Keyboard::Right);
+
+        
+        if (!activePiece->canMoveDown(grid))
+        {
+            activePiece->updateGrid(grid);
+            TPiece temp2(gameArt);
+            activePiece = &temp2;
+        }
+        
         //*********************************** DRAWING *************************************************************
         window.clear(Color(0,0,255));
 
         
         window.draw(gameBackground);
         drawGrid(window, grid, gameArt);
-        vector<Sprite> v = activePiece.getSprites();
+        vector<Sprite> v = activePiece->getSprites();
         for (int i = 0; i < v.size(); i++)
         {
             window.draw(v[i]);

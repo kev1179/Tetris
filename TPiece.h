@@ -1,10 +1,11 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "Piece.h"
 
 using namespace std;
 using namespace sf;
 
-class TPiece {
+class TPiece: public Piece {
 
 private:
 
@@ -44,6 +45,31 @@ private:
 		sprites = { block1, block2, block3, block4 };
 	}
 
+	bool canRotate(float x, float y)
+	{
+		if (x + 35 < 225)
+		{
+			return false;
+		}
+
+		if (x - 35 < 225)
+		{
+			return false;
+		}
+
+		if (x + 35 > 540)
+		{
+			return false;
+		}
+
+		if (x - 35 > 540)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 public:
 	
 	TPiece(Texture& gameArt)
@@ -81,41 +107,47 @@ public:
 
 	void rotate(string type)
 	{
-		updateState(state, type);
 
 		//NOTE: We are using block2 as the pivot
 		float pivot_x = block2.getPosition().x;
 		float pivot_y = block2.getPosition().y;
-		
-		if (state == 1)
-		{
-			block1.setPosition(pivot_x - 35, pivot_y);
-			block3.setPosition(pivot_x + 35, pivot_y);
-			block4.setPosition(pivot_x, pivot_y + 35);
 
+		if (canRotate(pivot_x, pivot_y))
+		{
+			updateState(state, type);
+
+			if (state == 1)
+			{
+
+				block1.setPosition(pivot_x - 35, pivot_y);
+				block3.setPosition(pivot_x + 35, pivot_y);
+				block4.setPosition(pivot_x, pivot_y + 35);
+
+			}
+
+			if (state == 2)
+			{
+				block1.setPosition(pivot_x, pivot_y - 35);
+				block3.setPosition(pivot_x, pivot_y + 35);
+				block4.setPosition(pivot_x - 35, pivot_y);
+			}
+
+			if (state == 3)
+			{
+				block1.setPosition(pivot_x - 35, pivot_y);
+				block3.setPosition(pivot_x + 35, pivot_y);
+				block4.setPosition(pivot_x, pivot_y - 35);
+			}
+
+			if (state == 4)
+			{
+				block1.setPosition(pivot_x, pivot_y - 35);
+				block3.setPosition(pivot_x, pivot_y + 35);
+				block4.setPosition(pivot_x + 35, pivot_y);
+			}
+			updateSprites(sprites);
 		}
 
-		if (state == 2)
-		{
-			block1.setPosition(pivot_x, pivot_y - 35);
-			block3.setPosition(pivot_x, pivot_y + 35);
-			block4.setPosition(pivot_x - 35, pivot_y);
-		}
-
-		if (state == 3)
-		{
-			block1.setPosition(pivot_x - 35, pivot_y);
-			block3.setPosition(pivot_x + 35, pivot_y);
-			block4.setPosition(pivot_x, pivot_y - 35);
-		}
-
-		if (state == 4)
-		{
-			block1.setPosition(pivot_x, pivot_y - 35);
-			block3.setPosition(pivot_x, pivot_y + 35);
-			block4.setPosition(pivot_x + 35, pivot_y);
-		}
-		updateSprites(sprites);
 	}
 
 	void fall()
@@ -149,7 +181,7 @@ public:
 		updateSprites(sprites);
 	}
 
-	bool canMoveLeft()
+	bool canMoveLeft(vector<vector<int>>& grid)
 	{
 		for (int i = 0; i < sprites.size(); i++)
 		{
@@ -157,27 +189,17 @@ public:
 			{
 				return false;
 			}
-		}
 
-		if (!canMoveDown())
-		{
-			return false;
-		}
+			float x = sprites[i].getPosition().x;
+			float y = sprites[i].getPosition().y;
 
-		return true;
-	}
-
-	bool canMoveRight()
-	{
-		for (int i = 0; i < sprites.size(); i++)
-		{
-			if (sprites[i].getPosition().x == 225+350-35)
+			if (grid[(y - 50) / 35][((x - 225) / 35) - 1] != 0)
 			{
 				return false;
 			}
 		}
 
-		if (!canMoveDown())
+		if (!canMoveDown(grid))
 		{
 			return false;
 		}
@@ -185,7 +207,34 @@ public:
 		return true;
 	}
 
-	bool canMoveDown()
+	bool canMoveRight(vector<vector<int>>& grid)
+	{
+		for (int i = 0; i < sprites.size(); i++)
+		{
+			if (sprites[i].getPosition().x == 540)
+			{
+				return false;
+			}
+
+			float x = sprites[i].getPosition().x;
+			float y = sprites[i].getPosition().y;
+
+			if (grid[(y - 50) / 35][((x - 225) / 35)+1] != 0)
+			{
+				return false;
+			}
+			
+		}
+
+		if (!canMoveDown(grid))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	bool canMoveDown(vector<vector<int>>& grid)
 	{
 		for (int i = 0; i < sprites.size(); i++)
 		{
@@ -193,7 +242,26 @@ public:
 			{
 				return false;
 			}
+
+			float x = sprites[i].getPosition().x;
+			float y = sprites[i].getPosition().y;
+
+			if (grid[((y - 50) / 35) + 1][(x - 225) / 35] != 0)
+			{
+				return false;
+			}
 		}
 		return true;
+	}
+
+	void updateGrid(vector<vector<int>>& grid)
+	{
+		for (int i = 0; i < sprites.size(); i++)
+		{
+			float x = sprites[i].getPosition().x;
+			float y = sprites[i].getPosition().y;
+
+			grid[(y - 50) / 35][(x - 225) / 35] = 1;
+		}
 	}
 };

@@ -17,6 +17,7 @@ private:
 	float scaleFactor;
 	int state;
 
+	//Updates the rotation state of the piece
 	void updateState(int& state, string type)
 	{
 		if (type.compare("left") == 0)
@@ -40,11 +41,14 @@ private:
 		}
 	}
 
+	//Updates the vector that contains all the sprites
 	void updateSprites(vector<Sprite>& sprites)
 	{
 		sprites = { block1, block2, block3, block4 };
 	}
 
+	//Determines if a piece is able to rotate
+	//TODO: Check to make sure piece doesn't rotate into adjacent piece
 	bool canRotate(float x, float y)
 	{
 		if (x + 35 < 225)
@@ -72,6 +76,7 @@ private:
 
 public:
 	
+	//Contructor that creates piece in the top middle of the screen
 	TPiece(Texture& gameArt)
 	{
 		scaleFactor = 5;
@@ -100,11 +105,13 @@ public:
 		sprites = { block1, block2, block3, block4 };
 	}
 
+	//Getter method that returns the vector containing the four block sprites
 	vector<Sprite> getSprites()
 	{
 		return sprites;
 	}
 
+	//Rotates the piece clockwise or counterclockwise depending on the paramter passed in
 	void rotate(string type)
 	{
 
@@ -150,6 +157,7 @@ public:
 
 	}
 
+	//Code that moves the piece downward
 	void fall()
 	{
 		block1.setPosition(block1.getPosition().x, block1.getPosition().y + 35);
@@ -160,6 +168,7 @@ public:
 		updateSprites(sprites);
 	}
 
+	//Code that moves the piece left or right 
 	void move(string type)
 	{
 		if (type.compare("left") == 0)
@@ -181,6 +190,7 @@ public:
 		updateSprites(sprites);
 	}
 
+	//Determines if the piece can move left at the given moment
 	bool canMoveLeft(vector<vector<int>>& grid)
 	{
 		for (int i = 0; i < sprites.size(); i++)
@@ -207,6 +217,7 @@ public:
 		return true;
 	}
 
+	//Determines if the piece can move right at the given moment
 	bool canMoveRight(vector<vector<int>>& grid)
 	{
 		for (int i = 0; i < sprites.size(); i++)
@@ -234,6 +245,7 @@ public:
 		return true;
 	}
 
+	//Determines if a piece can move down. Checks if its collided with another piece or hit the bottom
 	bool canMoveDown(vector<vector<int>>& grid)
 	{
 		for (int i = 0; i < sprites.size(); i++)
@@ -254,6 +266,7 @@ public:
 		return true;
 	}
 
+	//Updates the grid with the correct values
 	void updateGrid(vector<vector<int>>& grid)
 	{
 		for (int i = 0; i < sprites.size(); i++)

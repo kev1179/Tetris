@@ -63,6 +63,44 @@ void drawGrid(RenderWindow& window, vector<vector<int>>& grid, Texture& gameArt)
     }
 }
 
+//Recursive function that shifts all the lines in the grid down after a line has been cleared
+void downShift(vector<vector<int>>& grid, int clearedRow)
+{
+    if (clearedRow == -1)
+    {
+        return;
+    }
+
+    vector<int> temp = grid[clearedRow];
+    grid[clearedRow + 1] = temp;
+    downShift(grid, clearedRow - 1);
+
+}
+
+//Function that determines when a line needs to be cleared.
+void clearLines(vector<vector<int>>& grid)
+{
+    vector<int> emptyRow = { 0,0,0,0,0,0,0,0,0,0 };
+    for (int i = 0; i < grid.size(); i++)
+    {
+        int counter = 0;
+
+        for (int j = 0; j < grid[i].size(); j++)
+        {
+            if (grid[i][j] != 0)
+            {
+                counter++;
+            }
+        }
+
+        if (counter == 10)
+        {
+            grid[i] = emptyRow;
+            downShift(grid, i-1);
+        }
+    }
+}
+
 int main()
 {
     RNG rng;
@@ -79,6 +117,7 @@ int main()
     bool zPressed = false;
     bool leftPressed = false;
     bool rightPressed = false;
+    bool rightHold = false;
 
     RectangleShape gameBackground;
     gameBackground.setSize(Vector2f(350, 700));
@@ -101,7 +140,7 @@ int main()
                 window.close();
         }
 
-        if (time1.asMilliseconds()  >= 300 && time1.asMilliseconds() < 1000 && activePiece->canMoveDown(grid))
+        if (time1.asMilliseconds()  >= 100 && time1.asMilliseconds() < 1000 && activePiece->canMoveDown(grid))
         {
             activePiece->fall();
             clock.restart();
@@ -127,30 +166,30 @@ int main()
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !leftPressed && activePiece->canMoveLeft(grid))
         {
-
             activePiece->move("left");
             leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !rightPressed && activePiece->canMoveRight(grid))
         {
-
             activePiece->move("right");
             rightPressed = Keyboard::isKeyPressed(sf::Keyboard::Right);
+           
         }
 
         xPressed = Keyboard::isKeyPressed(sf::Keyboard::X);
         zPressed = Keyboard::isKeyPressed(sf::Keyboard::Z);
         leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
         rightPressed = Keyboard::isKeyPressed(sf::Keyboard::Right);
-
         
         if (!activePiece->canMoveDown(grid))
         {
             activePiece->updateGrid(grid);
+            clearLines(grid);
             TPiece temp2(gameArt);
             activePiece = &temp2;
         }
+
         
         //*********************************** DRAWING *************************************************************
         window.clear(Color(0,0,255));

@@ -74,6 +74,33 @@ private:
 		return true;
 	}
 
+	void correctState(string type)
+	{
+		string temp;
+
+		if (type.compare("left") == 0)
+		{
+			temp = "right";
+		}
+
+		else
+		{
+			temp = "left";
+		}
+		updateState(state, temp);
+	}
+
+	int toGridX(float x)
+	{
+		return (x - 225) / 35;
+	}
+
+	int toGridY(float y)
+	{
+		return (y - 50) / 35;
+	}
+
+
 public:
 	
 	//Contructor that creates piece in the top middle of the screen
@@ -112,12 +139,14 @@ public:
 	}
 
 	//Rotates the piece clockwise or counterclockwise depending on the paramter passed in
-	void rotate(string type)
+	void rotate(string type, vector<vector<int>>& grid)
 	{
 
 		//NOTE: We are using block2 as the pivot
 		float pivot_x = block2.getPosition().x;
 		float pivot_y = block2.getPosition().y;
+		int grid_x = toGridX(pivot_x);
+		int grid_y = toGridY(pivot_y);
 
 		if (canRotate(pivot_x, pivot_y))
 		{
@@ -125,33 +154,102 @@ public:
 
 			if (state == 1)
 			{
+				try
+				{
+					if (grid.at(grid_y).at(grid_x - 1) == 0 && grid.at(grid_y).at(grid_x + 1) == 0 && grid.at(grid_y + 1).at(grid_x) == 0)
+					{
+						block1.setPosition(pivot_x - 35, pivot_y);
+						block3.setPosition(pivot_x + 35, pivot_y);
+						block4.setPosition(pivot_x, pivot_y + 35);
+					}
+					else {
+						correctState(type);
+					}
+				}
 
-				block1.setPosition(pivot_x - 35, pivot_y);
-				block3.setPosition(pivot_x + 35, pivot_y);
-				block4.setPosition(pivot_x, pivot_y + 35);
+				catch (...)
+				{
+					correctState(type);
+				}
+
 
 			}
 
 			if (state == 2)
 			{
-				block1.setPosition(pivot_x, pivot_y - 35);
-				block3.setPosition(pivot_x, pivot_y + 35);
-				block4.setPosition(pivot_x - 35, pivot_y);
+				try
+				{
+					if (grid.at(grid_y - 1).at(grid_x) == 0 && grid.at(grid_y + 1).at(grid_x) == 0 && grid.at(grid_y).at(grid_x - 1) == 0)
+					{
+						block1.setPosition(pivot_x, pivot_y - 35);
+						block3.setPosition(pivot_x, pivot_y + 35);
+						block4.setPosition(pivot_x - 35, pivot_y);
+					}
+
+					else
+					{
+						correctState(type);
+					}
+				}
+
+				catch (...)
+				{
+					correctState(type);
+				}
+
+
 			}
 
 			if (state == 3)
 			{
-				block1.setPosition(pivot_x - 35, pivot_y);
-				block3.setPosition(pivot_x + 35, pivot_y);
-				block4.setPosition(pivot_x, pivot_y - 35);
+				try
+				{
+					if (grid.at(grid_y).at(grid_x - 1) == 0 && grid.at(grid_y).at(grid_x + 1) == 0 && grid.at(grid_y - 1).at(grid_x) == 0)
+					{
+						block1.setPosition(pivot_x - 35, pivot_y);
+						block3.setPosition(pivot_x + 35, pivot_y);
+						block4.setPosition(pivot_x, pivot_y - 35);
+					}
+
+					else
+					{
+						correctState(type);
+					}
+				}
+
+				catch (...)
+				{
+					correctState(type);
+				}
+	
+
 			}
 
 			if (state == 4)
 			{
-				block1.setPosition(pivot_x, pivot_y - 35);
-				block3.setPosition(pivot_x, pivot_y + 35);
-				block4.setPosition(pivot_x + 35, pivot_y);
+				try
+				{
+					if (grid.at(grid_y - 1).at(grid_x) == 0 && grid.at(grid_y + 1).at(grid_x) == 0 && grid.at(grid_y).at(grid_x + 1) == 0)
+					{
+						block1.setPosition(pivot_x, pivot_y - 35);
+						block3.setPosition(pivot_x, pivot_y + 35);
+						block4.setPosition(pivot_x + 35, pivot_y);
+					}
+
+					else
+					{
+						correctState(type);
+					}
+				}
+
+				catch (...)
+				{
+					correctState(type);
+				}
+
 			}
+
+
 			updateSprites(sprites);
 		}
 

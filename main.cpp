@@ -117,7 +117,6 @@ int main()
     bool zPressed = false;
     bool leftPressed = false;
     bool rightPressed = false;
-    bool rightHold = false;
 
     RectangleShape gameBackground;
     gameBackground.setSize(Vector2f(350, 700));
@@ -129,9 +128,13 @@ int main()
     activePiece = &temp;
 
     Clock clock;
+    Clock inputTracker;
+    int movementFactor = 300;
+
     while (window.isOpen())
     {
         Time time1 = clock.getElapsedTime();
+        Time time2 = clock.getElapsedTime();
 
         Event event;
         while (window.pollEvent(event))
@@ -152,7 +155,7 @@ int main()
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::X) && !xPressed)
         {
 
-            activePiece->rotate("right");
+            activePiece->rotate("right", grid);
             xPressed = Keyboard::isKeyPressed(sf::Keyboard::X);
         }
         
@@ -160,22 +163,49 @@ int main()
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && !zPressed)
         {
 
-            activePiece->rotate("left");
+            activePiece->rotate("left", grid);
             zPressed = Keyboard::isKeyPressed(sf::Keyboard::Z);
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !leftPressed && activePiece->canMoveLeft(grid))
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && activePiece->canMoveLeft(grid) && !leftPressed)
         {
+
             activePiece->move("left");
             leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
-        }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !rightPressed && activePiece->canMoveRight(grid))
+        }
+        /*
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && activePiece->canMoveLeft(grid))
+        {
+            if (time2.asMilliseconds() % movementFactor == 0)
+            {
+                activePiece->move("left");
+                leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
+            }
+
+        }
+        */
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && activePiece->canMoveRight(grid) && !rightPressed)
         {
             activePiece->move("right");
             rightPressed = Keyboard::isKeyPressed(sf::Keyboard::Right);
-           
+
         }
+        /*
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && activePiece->canMoveRight(grid))
+        {    
+            if (time2.asMilliseconds() % movementFactor == 0)
+            {
+                activePiece->move("right");
+                rightPressed = Keyboard::isKeyPressed(sf::Keyboard::Right);
+            }
+
+        }
+        */
+
+
+
 
         xPressed = Keyboard::isKeyPressed(sf::Keyboard::X);
         zPressed = Keyboard::isKeyPressed(sf::Keyboard::Z);

@@ -9,6 +9,8 @@
 #include "ZPiece.h"
 #include "Square.h"
 #include "SPiece.h"
+#include "LPiece.h"
+#include "Line.h"
 #include <queue>
 
 using namespace std;
@@ -133,10 +135,10 @@ int main()
     previewPieces[4] = IntRect(244, 808, 15, 15);
     previewPieces[5] = IntRect(240, 848, 23, 15);
     previewPieces[6] = IntRect(240, 888, 23, 15);
-    previewPieces[7] = IntRect(248, 920, 7, 31);
+    previewPieces[7] = IntRect(276, 932, 31, 7);
 
     RectangleShape previewSquare;
-    previewSquare.setSize(Vector2f(150, 150));
+    previewSquare.setSize(Vector2f(180, 180));
     previewSquare.setFillColor(Color::Black);
     previewSquare.setPosition(600, 300);
 
@@ -145,37 +147,49 @@ int main()
 
     Piece* activePiece = nullptr;
 
-    int firstPiece = rng.randomInt(1, 6);
-    int nextPiece = rng.randomInt(1, 6);
+    int firstPiece = rng.randomInt(1, 8);
+    int nextPiece = rng.randomInt(1, 8);
 
     if (firstPiece == 1)
     {
-        TPiece temp(gameArt);
-        activePiece = &temp;
+        TPiece* temp = new TPiece(gameArt);
+        activePiece = temp;
     }
 
     else if (firstPiece == 2)
     {
-        JPiece temp(gameArt);
-        activePiece = &temp;
+        JPiece* temp = new JPiece(gameArt);
+        activePiece = temp;
     }
 
     else if (firstPiece == 3)
     {
-        ZPiece temp(gameArt);
-        activePiece = &temp;
+        ZPiece* temp = new ZPiece(gameArt);
+        activePiece = temp;
     }
     
     else if (firstPiece == 4)
     {
-        Square temp(gameArt);
-        activePiece = &temp;
+        Square* temp = new Square(gameArt);
+        activePiece = temp;
     }
 
     else if (firstPiece == 5)
     {
-        SPiece temp(gameArt);
-        activePiece = &temp;
+        SPiece* temp = new SPiece(gameArt);
+        activePiece = temp;
+    }
+
+    else if (firstPiece == 6)
+    {
+        LPiece* temp = new LPiece(gameArt);
+        activePiece = temp;
+    }
+
+    else if (firstPiece == 7)
+    {
+        Line* temp = new Line(gameArt);
+        activePiece = temp;
     }
 
     if (activePiece == nullptr)
@@ -191,7 +205,7 @@ int main()
     Sprite previewArt;
     previewArt.setTexture(gameArt);
     previewArt.setTextureRect(previewPieces[nextPiece]);
-    previewArt.setPosition(617.5, 350);
+    previewArt.setPosition(642.5 - 17.5, 385 - 17.5);
     previewArt.setScale(5, 5);
 
     Clock clock;
@@ -282,7 +296,7 @@ int main()
         if (!activePiece->canMoveDown(grid))
         {
             pieceLine.pop();
-            int previewPiece = rng.randomInt(1, 6);
+            int previewPiece = rng.randomInt(1, 8);
             pieceLine.push(previewPiece);
             int generatedPiece = pieceLine.front();
             previewArt.setTextureRect(previewPieces[previewPiece]);
@@ -290,34 +304,48 @@ int main()
             activePiece->updateGrid(grid);
             clearLines(grid);
 
+            delete activePiece;
+
             if (generatedPiece == 1)
             {
-                TPiece temp2(gameArt);
-                activePiece = &temp2;
+                TPiece* temp2 = new TPiece(gameArt);
+                activePiece = temp2;
             }
 
             else if (generatedPiece == 2)
             {
-                JPiece temp2(gameArt);
-                activePiece = &temp2;
+                JPiece* temp2 = new JPiece(gameArt);
+                activePiece = temp2;
             }
 
             else if (generatedPiece == 3)
             {
-                ZPiece temp2(gameArt);
-                activePiece = &temp2;
+                ZPiece* temp2 = new ZPiece(gameArt);
+                activePiece = temp2;
             }
 
             else if (generatedPiece == 4)
             {
-                Square temp2(gameArt);
-                activePiece = &temp2;
+                Square* temp2 = new Square(gameArt);
+                activePiece = temp2;
             }
 
             else if (generatedPiece == 5)
             {
-                SPiece temp2(gameArt);
-                activePiece = &temp2;
+                SPiece* temp2 = new SPiece(gameArt);
+                activePiece = temp2;
+            }
+
+            else if (generatedPiece == 6)
+            {
+                LPiece* temp2 = new LPiece(gameArt);
+                activePiece = temp2;
+            }
+
+            else if (generatedPiece == 7)
+            {
+                Line* temp2 = new Line(gameArt);
+                activePiece = temp2;
             }
 
         }

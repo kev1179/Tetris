@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include "TPiece.h"
 #include "Piece.h"
+#include "JPiece.h"
+#include <queue>
 
 using namespace std;
 using namespace sf;
@@ -111,8 +113,6 @@ int main()
     Texture gameArt;
     gameArt.loadFromFile("sprites.png");
 
-
-
     bool xPressed = false;
     bool zPressed = false;
     bool leftPressed = false;
@@ -123,9 +123,52 @@ int main()
     gameBackground.setFillColor(Color::Black);
     gameBackground.setPosition(225, 50);
 
-    Piece* activePiece;
-    TPiece temp(gameArt);
-    activePiece = &temp;
+    Piece* activePiece = nullptr;
+
+    int firstPiece = rng.randomInt(1, 3);
+    int nextPiece = rng.randomInt(1, 3);
+
+    unordered_map<int, IntRect> previewPieces;
+    previewPieces[1] = IntRect(240, 688, 23, 15);
+    previewPieces[2] = IntRect(240, 728, 23, 15);
+    previewPieces[3] = IntRect(240, 768, 23, 15);
+    previewPieces[4] = IntRect(244, 808, 15, 15);
+    previewPieces[5] = IntRect(240, 848, 23, 15);
+    previewPieces[6] = IntRect(240, 888, 23, 15);
+    previewPieces[7] = IntRect(248, 920, 7, 31);
+
+    RectangleShape previewSquare;
+    previewSquare.setSize(Vector2f(150, 150));
+    previewSquare.setFillColor(Color::Black);
+    previewSquare.setPosition(600, 300);
+
+    Sprite previewArt;
+    previewArt.setTexture(gameArt);
+    previewArt.setTextureRect(previewPieces[nextPiece]);
+    previewArt.setPosition(617.5, 350);
+    previewArt.setScale(5, 5);
+
+    if (firstPiece == 1)
+    {
+        TPiece temp(gameArt);
+        activePiece = &temp;
+    }
+
+    else if (firstPiece == 2)
+    {
+        JPiece temp(gameArt);
+        activePiece = &temp;
+    }
+    
+    if (activePiece == nullptr)
+    {
+        TPiece temp(gameArt);
+        activePiece = &temp;
+    }
+
+    queue<int> pieceLine; //queue of size 2, front is the active piece, back is the next piece in line that will be displayed in the preview
+    pieceLine.push(firstPiece);
+    pieceLine.push(nextPiece);
 
     Clock clock;
     Clock inputTracker;
@@ -214,10 +257,27 @@ int main()
         
         if (!activePiece->canMoveDown(grid))
         {
+            pieceLine.pop();
+            int previewPiece = rng.randomInt(1, 3);
+            pieceLine.push(previewPiece);
+            int generatedPiece = pieceLine.front();
+            previewArt.setTextureRect(previewPieces[previewPiece]);
+
             activePiece->updateGrid(grid);
             clearLines(grid);
-            TPiece temp2(gameArt);
-            activePiece = &temp2;
+
+            if (generatedPiece == 1)
+            {
+                TPiece temp2(gameArt);
+                activePiece = &temp2;
+            }
+
+            else if (generatedPiece == 2)
+            {
+                JPiece temp2(gameArt);
+                activePiece = &temp2;
+            }
+
         }
 
         
@@ -232,7 +292,8 @@ int main()
         {
             window.draw(v[i]);
         }
-        //window.draw(TPiece);
+        window.draw(previewSquare);
+        window.draw(previewArt);
         window.display();
     }
 

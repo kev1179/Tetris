@@ -6,6 +6,9 @@
 #include "TPiece.h"
 #include "Piece.h"
 #include "JPiece.h"
+#include "ZPiece.h"
+#include "Square.h"
+#include "SPiece.h"
 #include <queue>
 
 using namespace std;
@@ -123,11 +126,6 @@ int main()
     gameBackground.setFillColor(Color::Black);
     gameBackground.setPosition(225, 50);
 
-    Piece* activePiece = nullptr;
-
-    int firstPiece = rng.randomInt(1, 3);
-    int nextPiece = rng.randomInt(1, 3);
-
     unordered_map<int, IntRect> previewPieces;
     previewPieces[1] = IntRect(240, 688, 23, 15);
     previewPieces[2] = IntRect(240, 728, 23, 15);
@@ -142,11 +140,13 @@ int main()
     previewSquare.setFillColor(Color::Black);
     previewSquare.setPosition(600, 300);
 
-    Sprite previewArt;
-    previewArt.setTexture(gameArt);
-    previewArt.setTextureRect(previewPieces[nextPiece]);
-    previewArt.setPosition(617.5, 350);
-    previewArt.setScale(5, 5);
+
+
+
+    Piece* activePiece = nullptr;
+
+    int firstPiece = rng.randomInt(1, 6);
+    int nextPiece = rng.randomInt(1, 6);
 
     if (firstPiece == 1)
     {
@@ -159,7 +159,25 @@ int main()
         JPiece temp(gameArt);
         activePiece = &temp;
     }
+
+    else if (firstPiece == 3)
+    {
+        ZPiece temp(gameArt);
+        activePiece = &temp;
+    }
     
+    else if (firstPiece == 4)
+    {
+        Square temp(gameArt);
+        activePiece = &temp;
+    }
+
+    else if (firstPiece == 5)
+    {
+        SPiece temp(gameArt);
+        activePiece = &temp;
+    }
+
     if (activePiece == nullptr)
     {
         TPiece temp(gameArt);
@@ -169,6 +187,12 @@ int main()
     queue<int> pieceLine; //queue of size 2, front is the active piece, back is the next piece in line that will be displayed in the preview
     pieceLine.push(firstPiece);
     pieceLine.push(nextPiece);
+
+    Sprite previewArt;
+    previewArt.setTexture(gameArt);
+    previewArt.setTextureRect(previewPieces[nextPiece]);
+    previewArt.setPosition(617.5, 350);
+    previewArt.setScale(5, 5);
 
     Clock clock;
     Clock inputTracker;
@@ -258,7 +282,7 @@ int main()
         if (!activePiece->canMoveDown(grid))
         {
             pieceLine.pop();
-            int previewPiece = rng.randomInt(1, 3);
+            int previewPiece = rng.randomInt(1, 6);
             pieceLine.push(previewPiece);
             int generatedPiece = pieceLine.front();
             previewArt.setTextureRect(previewPieces[previewPiece]);
@@ -275,6 +299,24 @@ int main()
             else if (generatedPiece == 2)
             {
                 JPiece temp2(gameArt);
+                activePiece = &temp2;
+            }
+
+            else if (generatedPiece == 3)
+            {
+                ZPiece temp2(gameArt);
+                activePiece = &temp2;
+            }
+
+            else if (generatedPiece == 4)
+            {
+                Square temp2(gameArt);
+                activePiece = &temp2;
+            }
+
+            else if (generatedPiece == 5)
+            {
+                SPiece temp2(gameArt);
                 activePiece = &temp2;
             }
 

@@ -85,9 +85,17 @@ void downShift(vector<vector<int>>& grid, int clearedRow)
 }
 
 //Function that determines when a line needs to be cleared.
-void clearLines(vector<vector<int>>& grid)
+void clearLines(vector<vector<int>>& grid, int level, int& score)
 {
     vector<int> emptyRow = { 0,0,0,0,0,0,0,0,0,0 };
+    int linesCleared = 0;
+    unordered_map<int, int> pointValues;
+    pointValues[0] = 0;
+    pointValues[1] = 40;
+    pointValues[2] = 100;
+    pointValues[3] = 300;
+    pointValues[4] = 1200;
+
     for (int i = 0; i < grid.size(); i++)
     {
         int counter = 0;
@@ -104,8 +112,24 @@ void clearLines(vector<vector<int>>& grid)
         {
             grid[i] = emptyRow;
             downShift(grid, i-1);
+            linesCleared++;
         }
+        
     }
+    score += pointValues[linesCleared] * (level + 1);
+}
+
+string scoreAsString(int score)
+{
+    string returnString = to_string(score);
+    int numLeadingZeroes = returnString.size();
+
+    for (int i = 0; i < 6 - numLeadingZeroes; i++)
+    {
+        returnString.insert(returnString.begin(), '0');
+    }
+
+    return returnString;
 }
 
 int main()
@@ -113,6 +137,10 @@ int main()
     RNG rng;
     vector<vector<int>> grid;
     initGrid(grid);
+
+    int score = 0;
+    vector<int> highestScores = { 0,0,0 };
+    int level = 15;
 
     RenderWindow window(VideoMode(800, 750), "Tetris");
     Texture gameArt;
@@ -141,9 +169,6 @@ int main()
     previewSquare.setSize(Vector2f(180, 180));
     previewSquare.setFillColor(Color::Black);
     previewSquare.setPosition(600, 300);
-
-
-
 
     Piece* activePiece = nullptr;
 
@@ -211,6 +236,38 @@ int main()
     Clock clock;
     Clock inputTracker;
     int movementFactor = 300;
+
+    Font textFont;
+    textFont.loadFromFile("text_font.ttf");
+
+    RectangleShape scoreBox;
+    scoreBox.setSize(Vector2f(180, 180));
+    scoreBox.setFillColor(Color::Black);
+    scoreBox.setPosition(600, 30);
+
+    Text scoreDisplay;
+    scoreDisplay.setFont(textFont);
+    scoreDisplay.setString(scoreAsString(score));
+    scoreDisplay.setCharacterSize(50);
+    scoreDisplay.setPosition(642.5 - 35, 150);
+
+    Text scoreText;
+    scoreText.setFont(textFont);
+    scoreText.setString("SCORE");
+    scoreText.setCharacterSize(50);
+    scoreText.setPosition(642.5 - 22.75, 110);
+
+    Text topScoreDisplay;
+    topScoreDisplay.setFont(textFont);
+    topScoreDisplay.setString(scoreAsString(highestScores[0]));
+    topScoreDisplay.setCharacterSize(50);
+    topScoreDisplay.setPosition(642.5 - 35, 70);
+
+    Text topScoreText;
+    topScoreText.setFont(textFont);
+    topScoreText.setString("TOP");
+    topScoreText.setCharacterSize(50);
+    topScoreText.setPosition(642.5, 30);
 
     while (window.isOpen())
     {
@@ -302,7 +359,8 @@ int main()
             previewArt.setTextureRect(previewPieces[previewPiece]);
 
             activePiece->updateGrid(grid);
-            clearLines(grid);
+            clearLines(grid, level, score);
+            scoreDisplay.setString(scoreAsString(score));
 
             delete activePiece;
 
@@ -364,6 +422,12 @@ int main()
         }
         window.draw(previewSquare);
         window.draw(previewArt);
+        window.draw(scoreBox);
+        window.draw(scoreDisplay);
+        window.draw(scoreText);
+        window.draw(topScoreDisplay);
+        window.draw(topScoreText);
+
         window.display();
     }
 

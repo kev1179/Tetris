@@ -117,6 +117,11 @@ void clearLines(vector<vector<int>>& grid, int level, int& score)
         
     }
     score += pointValues[linesCleared] * (level + 1);
+
+    if (score > 999999)
+    {
+        score = 999999;
+    }
 }
 
 string scoreAsString(int score)
@@ -132,6 +137,20 @@ string scoreAsString(int score)
     return returnString;
 }
 
+bool isGameOver(vector<vector<int>>& grid)
+{
+    vector<int> topRow = grid[0];
+
+    for (int i = 0; i < topRow.size(); i++)
+    {
+        if (topRow[i] != 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 int main()
 {
     RNG rng;
@@ -145,17 +164,25 @@ int main()
     RenderWindow window(VideoMode(800, 750), "Tetris");
     Texture gameArt;
     gameArt.loadFromFile("sprites.png");
+    Texture background;
+    background.loadFromFile("background.jpg");
 
     bool xPressed = false;
     bool zPressed = false;
     bool leftPressed = false;
     bool rightPressed = false;
+    int keyDelayCounter = 0;
+    int keyDelay = 80;
 
     RectangleShape gameBackground;
     gameBackground.setSize(Vector2f(350, 700));
     gameBackground.setFillColor(Color::Black);
     gameBackground.setPosition(225, 50);
 
+    Sprite* backgroundImage = new Sprite;
+    backgroundImage->setTexture(background);
+    backgroundImage->setTextureRect(IntRect(0, 0, 800, 750));
+    
     unordered_map<int, IntRect> previewPieces;
     previewPieces[1] = IntRect(240, 688, 23, 15);
     previewPieces[2] = IntRect(240, 728, 23, 15);
@@ -306,6 +333,7 @@ int main()
         }
 
 
+        /*
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && activePiece->canMoveLeft(grid) && !leftPressed)
         {
 
@@ -313,44 +341,45 @@ int main()
             leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
 
         }
-        /*
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && activePiece->canMoveLeft(grid))
+         */
+         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && activePiece->canMoveLeft(grid))
         {
-            if (time2.asMilliseconds() % movementFactor == 0)
+            keyDelayCounter++;
+
+            if (keyDelayCounter == keyDelay)
             {
                 activePiece->move("left");
                 leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
+                keyDelayCounter = 0;
             }
 
         }
-        */
+        /*
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && activePiece->canMoveRight(grid) && !rightPressed)
         {
             activePiece->move("right");
             rightPressed = Keyboard::isKeyPressed(sf::Keyboard::Right);
 
         }
-        /*
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && activePiece->canMoveRight(grid))
-        {    
-            if (time2.asMilliseconds() % movementFactor == 0)
+        */
+         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && activePiece->canMoveRight(grid))
+        {
+            keyDelayCounter++;
+
+            if (keyDelayCounter == keyDelay)
             {
                 activePiece->move("right");
                 rightPressed = Keyboard::isKeyPressed(sf::Keyboard::Right);
+                keyDelayCounter = 0;
             }
-
         }
-        */
-
-
-
 
         xPressed = Keyboard::isKeyPressed(sf::Keyboard::X);
         zPressed = Keyboard::isKeyPressed(sf::Keyboard::Z);
         leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
         rightPressed = Keyboard::isKeyPressed(sf::Keyboard::Right);
         
-        if (!activePiece->canMoveDown(grid))
+        if (!activePiece->canMoveDown(grid) && !isGameOver(grid))
         {
             pieceLine.pop();
             int previewPiece = rng.randomInt(1, 8);
@@ -412,7 +441,7 @@ int main()
         //*********************************** DRAWING *************************************************************
         window.clear(Color(0,0,255));
 
-        
+        window.draw(*backgroundImage);
         window.draw(gameBackground);
         drawGrid(window, grid, gameArt);
         vector<Sprite> v = activePiece->getSprites();
@@ -429,9 +458,10 @@ int main()
         window.draw(topScoreText);
 
         window.display();
+
     }
 
-    
+    delete backgroundImage;
 
     return 0;
 }

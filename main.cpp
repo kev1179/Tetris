@@ -12,6 +12,7 @@
 #include "LPiece.h"
 #include "Line.h"
 #include <queue>
+#include <fstream>
 
 using namespace std;
 using namespace sf;
@@ -151,6 +152,31 @@ bool isGameOver(vector<vector<int>>& grid)
     return false;
 }
 
+void readHighScores(ifstream& file, vector<int>& scores)
+{
+    string line;
+    while (getline(file, line))
+    {
+        scores.push_back(stoi(line));
+    }
+}
+
+void updateHighScore(vector<int>& scores, int score)
+{
+    ofstream file("high_scores.txt");
+    bool done = false;
+    scores.push_back(score);
+    std::sort(scores.begin(), scores.end());
+    scores.erase(scores.begin());
+    std::sort(scores.begin(), scores.end(), greater<>());
+
+    for (int i = 0; i < scores.size(); i++)
+    {
+        file << scores[i] << endl;
+    }
+    file.close();
+}
+
 int main()
 {
     RNG rng;
@@ -158,7 +184,11 @@ int main()
     initGrid(grid);
 
     int score = 0;
-    vector<int> highestScores = { 0,0,0 };
+    vector<int> highestScores;
+    ifstream highScores("high_scores.txt");
+    readHighScores(highScores, highestScores);
+    highScores.close();
+
     int level = 15;
 
     RenderWindow window(VideoMode(800, 750), "Tetris");
@@ -172,7 +202,7 @@ int main()
     bool leftPressed = false;
     bool rightPressed = false;
     int keyDelayCounter = 0;
-    int keyDelay = 80;
+    int keyDelay = 70;
 
     RectangleShape gameBackground;
     gameBackground.setSize(Vector2f(350, 700));
@@ -437,6 +467,12 @@ int main()
 
         }
 
+        else if (isGameOver(grid))
+        {
+            ofstream writeHighScore("high_scores.txt");
+            updateHighScore(highestScores, score);
+            break;
+        }
         
         //*********************************** DRAWING *************************************************************
         window.clear(Color(0,0,255));

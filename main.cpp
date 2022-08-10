@@ -86,7 +86,7 @@ void downShift(vector<vector<int>>& grid, int clearedRow)
 }
 
 //Function that determines when a line needs to be cleared.
-void clearLines(vector<vector<int>>& grid, int level, int& score)
+void clearLines(vector<vector<int>>& grid, int level, int& score, int& totalLinesCleared)
 {
     vector<int> emptyRow = { 0,0,0,0,0,0,0,0,0,0 };
     int linesCleared = 0;
@@ -118,6 +118,7 @@ void clearLines(vector<vector<int>>& grid, int level, int& score)
         
     }
     score += pointValues[linesCleared] * (level + 1);
+    totalLinesCleared += linesCleared;
 
     if (score > 999999)
     {
@@ -125,12 +126,12 @@ void clearLines(vector<vector<int>>& grid, int level, int& score)
     }
 }
 
-string scoreAsString(int score)
+string numAsString(int score, int length)
 {
     string returnString = to_string(score);
     int numLeadingZeroes = returnString.size();
 
-    for (int i = 0; i < 6 - numLeadingZeroes; i++)
+    for (int i = 0; i < length - numLeadingZeroes; i++)
     {
         returnString.insert(returnString.begin(), '0');
     }
@@ -184,6 +185,7 @@ int main()
     initGrid(grid);
 
     int score = 0;
+    int totalLinesCleared = 0;
     vector<int> highestScores;
     ifstream highScores("high_scores.txt");
     readHighScores(highScores, highestScores);
@@ -304,7 +306,7 @@ int main()
 
     Text scoreDisplay;
     scoreDisplay.setFont(textFont);
-    scoreDisplay.setString(scoreAsString(score));
+    scoreDisplay.setString(numAsString(score, 6));
     scoreDisplay.setCharacterSize(50);
     scoreDisplay.setPosition(642.5 - 35, 150);
 
@@ -316,7 +318,7 @@ int main()
 
     Text topScoreDisplay;
     topScoreDisplay.setFont(textFont);
-    topScoreDisplay.setString(scoreAsString(highestScores[0]));
+    topScoreDisplay.setString(numAsString(highestScores[0], 6));
     topScoreDisplay.setCharacterSize(50);
     topScoreDisplay.setPosition(642.5 - 35, 70);
 
@@ -325,6 +327,39 @@ int main()
     topScoreText.setString("TOP");
     topScoreText.setCharacterSize(50);
     topScoreText.setPosition(642.5, 30);
+
+    Text lineText;
+    lineText.setFont(textFont);
+    lineText.setString("LINES " + numAsString(totalLinesCleared,3));
+    lineText.setCharacterSize(50);
+    lineText.setPosition(300, -10);
+
+    vector<Sprite> statPieces;
+
+    for (int i = 1; i <= 7; i++)
+    {
+        Sprite temp;
+        temp.setTexture(gameArt);
+        temp.setTextureRect(previewPieces[i]);
+
+        if (i == 7)
+        {
+            temp.setPosition(60, 100 + i * 75);
+        }
+
+        else
+        {
+            temp.setPosition(80, 100 + i * 75);
+        }
+
+        temp.setScale(3, 3);
+        statPieces.push_back(temp);
+    }
+
+    RectangleShape statBox;
+    statBox.setSize(Vector2f(150, 525));
+    statBox.setFillColor(Color::Black);
+    statBox.setPosition(50, 150);
 
     while (window.isOpen())
     {
@@ -418,8 +453,9 @@ int main()
             previewArt.setTextureRect(previewPieces[previewPiece]);
 
             activePiece->updateGrid(grid);
-            clearLines(grid, level, score);
-            scoreDisplay.setString(scoreAsString(score));
+            clearLines(grid, level, score, totalLinesCleared);
+            scoreDisplay.setString(numAsString(score, 6));
+            lineText.setString("LINES " + numAsString(totalLinesCleared, 3));
 
             delete activePiece;
 
@@ -471,7 +507,18 @@ int main()
         {
             ofstream writeHighScore("high_scores.txt");
             updateHighScore(highestScores, score);
-            break;
+            
+            for (int i = 0; i < grid.size(); i++)
+            {
+                for (int j = 0; j < grid[i].size(); j++)
+                {
+                    grid[i][j] = 0;
+                }
+            }
+            score = 0;
+            totalLinesCleared = 0;
+            scoreDisplay.setString(numAsString(0,6));
+            lineText.setString("LINES " + numAsString(totalLinesCleared, 3));
         }
         
         //*********************************** DRAWING *************************************************************
@@ -492,6 +539,13 @@ int main()
         window.draw(scoreText);
         window.draw(topScoreDisplay);
         window.draw(topScoreText);
+        window.draw(lineText);
+
+        window.draw(statBox);
+        for (int i = 0; i < statPieces.size(); i++)
+        {
+            window.draw(statPieces[i]);
+        }
 
         window.display();
 

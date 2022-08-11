@@ -187,6 +187,15 @@ int main()
     int score = 0;
     int totalLinesCleared = 0;
     vector<int> highestScores;
+    unordered_map<int, int> statTracker;
+    statTracker[1] = 0;
+    statTracker[2] = 0;
+    statTracker[3] = 0;
+    statTracker[4] = 0;
+    statTracker[5] = 0;
+    statTracker[6] = 0;
+    statTracker[7] = 0;
+
     ifstream highScores("high_scores.txt");
     readHighScores(highScores, highestScores);
     highScores.close();
@@ -238,42 +247,49 @@ int main()
     {
         TPiece* temp = new TPiece(gameArt);
         activePiece = temp;
+        statTracker[1]++;
     }
 
     else if (firstPiece == 2)
     {
         JPiece* temp = new JPiece(gameArt);
         activePiece = temp;
+        statTracker[2]++;
     }
 
     else if (firstPiece == 3)
     {
         ZPiece* temp = new ZPiece(gameArt);
         activePiece = temp;
+        statTracker[3]++;
     }
     
     else if (firstPiece == 4)
     {
         Square* temp = new Square(gameArt);
         activePiece = temp;
+        statTracker[4]++;
     }
 
     else if (firstPiece == 5)
     {
         SPiece* temp = new SPiece(gameArt);
         activePiece = temp;
+        statTracker[5]++;
     }
 
     else if (firstPiece == 6)
     {
         LPiece* temp = new LPiece(gameArt);
         activePiece = temp;
+        statTracker[6]++;
     }
 
     else if (firstPiece == 7)
     {
         Line* temp = new Line(gameArt);
         activePiece = temp;
+        statTracker[7]++;
     }
 
     if (activePiece == nullptr)
@@ -335,7 +351,7 @@ int main()
     lineText.setPosition(300, -10);
 
     vector<Sprite> statPieces;
-
+    int difference = 30;
     for (int i = 1; i <= 7; i++)
     {
         Sprite temp;
@@ -344,12 +360,12 @@ int main()
 
         if (i == 7)
         {
-            temp.setPosition(60, 100 + i * 75);
+            temp.setPosition(60 - difference, 100 + i * 75);
         }
 
         else
         {
-            temp.setPosition(80, 100 + i * 75);
+            temp.setPosition(80 - difference, 100 + i * 75);
         }
 
         temp.setScale(3, 3);
@@ -357,12 +373,35 @@ int main()
     }
 
     RectangleShape statBox;
-    statBox.setSize(Vector2f(150, 525));
+    statBox.setSize(Vector2f(190, 525));
     statBox.setFillColor(Color::Black);
-    statBox.setPosition(50, 150);
+    statBox.setPosition(50 - difference, 150);
+
+    vector<Text> statDisplay;
+
+    for (int i = 0; i < 7; i++)
+    {
+        Text temp;
+        temp.setFont(textFont);
+        temp.setString(numAsString(0, 3));
+        temp.setCharacterSize(50);
+        temp.setPosition(642.5, 30);
+        temp.setPosition(170 - difference, 160 + i * 75);
+        temp.setScale(0.75, 0.75);
+        temp.setFillColor(Color(255, 0, 0));
+
+        statDisplay.push_back(temp);
+    }
 
     while (window.isOpen())
     {
+
+
+        for (int i = 0; i < statDisplay.size(); i++)
+        {
+            statDisplay[i].setString(numAsString(statTracker[i + 1], 3));
+        }
+
         Time time1 = clock.getElapsedTime();
         Time time2 = clock.getElapsedTime();
 
@@ -463,42 +502,49 @@ int main()
             {
                 TPiece* temp2 = new TPiece(gameArt);
                 activePiece = temp2;
+                statTracker[1]++;
             }
 
             else if (generatedPiece == 2)
             {
                 JPiece* temp2 = new JPiece(gameArt);
                 activePiece = temp2;
+                statTracker[2]++;
             }
 
             else if (generatedPiece == 3)
             {
                 ZPiece* temp2 = new ZPiece(gameArt);
                 activePiece = temp2;
+                statTracker[3]++;
             }
 
             else if (generatedPiece == 4)
             {
                 Square* temp2 = new Square(gameArt);
                 activePiece = temp2;
+                statTracker[4]++;
             }
 
             else if (generatedPiece == 5)
             {
                 SPiece* temp2 = new SPiece(gameArt);
                 activePiece = temp2;
+                statTracker[5]++;
             }
 
             else if (generatedPiece == 6)
             {
                 LPiece* temp2 = new LPiece(gameArt);
                 activePiece = temp2;
+                statTracker[6]++;
             }
 
             else if (generatedPiece == 7)
             {
                 Line* temp2 = new Line(gameArt);
                 activePiece = temp2;
+                statTracker[7]++;
             }
 
         }
@@ -519,6 +565,18 @@ int main()
             totalLinesCleared = 0;
             scoreDisplay.setString(numAsString(0,6));
             lineText.setString("LINES " + numAsString(totalLinesCleared, 3));
+            statTracker[1] = 0;
+            statTracker[2] = 0;
+            statTracker[3] = 0;
+            statTracker[4] = 0;
+            statTracker[5] = 0;
+            statTracker[6] = 0;
+            statTracker[7] = 0;
+
+            for (int i = 0; i < statDisplay.size(); i++)
+            {
+                statDisplay[i].setString(numAsString(0, 3));
+            }
         }
         
         //*********************************** DRAWING *************************************************************
@@ -545,6 +603,11 @@ int main()
         for (int i = 0; i < statPieces.size(); i++)
         {
             window.draw(statPieces[i]);
+        }
+
+        for (int i = 0; i < statDisplay.size(); i++)
+        {
+            window.draw(statDisplay[i]);
         }
 
         window.display();

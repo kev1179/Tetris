@@ -2,12 +2,14 @@
 #include "Menu.h"
 
 using namespace std;
+using namespace sf;
 
 int main()
 {
-	Game game;
+	Game game(15);
 	game.run_game();
-	//Menu menu;
+	//RenderWindow window(VideoMode(800, 750), "Tetris");
+	//Menu menu(window);
 	//menu.displayMenu();
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include "Menu.h"
 #include <SFML/Graphics.hpp>
 #include "RNG.h"
 #include <vector>
@@ -21,6 +22,8 @@ using namespace sf;
 class Game
 {
 private:
+
+    int level;
 
     //Initializes empty 10x20 grid
     void initGrid(vector<vector<int>>& grid)
@@ -183,6 +186,11 @@ private:
         file.close();
     }
 public:
+
+    Game(int level)
+    {
+        this->level = level;
+    }
     void run_game()
     {
         RNG rng;
@@ -205,7 +213,6 @@ public:
         readHighScores(highScores, highestScores);
         highScores.close();
 
-        int level = 15;
 
         RenderWindow window(VideoMode(800, 750), "Tetris");
         Texture gameArt;
@@ -584,6 +591,12 @@ public:
                     {
                         statDisplay[i].setString(numAsString(0, 3));
                     }
+                    clock.restart();
+
+                    Menu menu(window);
+                    menu.displayMenu();
+                    window.close();
+                    break;
                 }
 
             }

@@ -72,6 +72,12 @@ using namespace sf;
                 {
                     level--;
                 }
+
+                else
+                {
+                    level = 19;
+                }
+
                 levelText[level].setFillColor(Color(255, 0, 0));
                 leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
             }
@@ -82,6 +88,11 @@ using namespace sf;
                 if (level != 19)
                 {
                     level++;
+                }
+
+                else
+                {
+                    level = 0;
                 }
 
                 levelText[level].setFillColor(Color(255, 0, 0));

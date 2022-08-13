@@ -491,6 +491,19 @@ using namespace sf;
                 }
             }
 
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && activePiece->canMoveDown(grid))
+            {
+                keyDelayCounter++;
+
+                if (keyDelayCounter == keyDelay)
+                {
+                    activePiece->fall();
+                    leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
+                    keyDelayCounter = 0;
+                }
+
+            }
+
             xPressed = Keyboard::isKeyPressed(sf::Keyboard::X);
             zPressed = Keyboard::isKeyPressed(sf::Keyboard::Z);
             leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);

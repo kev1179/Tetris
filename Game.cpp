@@ -509,7 +509,7 @@ using namespace sf;
             leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
             rightPressed = Keyboard::isKeyPressed(sf::Keyboard::Right);
 
-            if (!activePiece->canMoveDown(grid) && !isGameOver(grid))
+            if (!activePiece->canMoveDown(grid) && !isGameOver(grid) && !activePiece->canMoveLeft(grid) && !activePiece->canMoveRight(grid))
             {
                 pieceLine.pop();
                 int previewPiece = rng.randomInt(1, 8);

@@ -16,6 +16,7 @@ private:
 	vector<Sprite> sprites;
 	float scaleFactor;
 	int state;
+	Clock clock;
 
 	//Updates the rotation state of the piece
 	void updateState(int& state, string type)
@@ -291,6 +292,13 @@ public:
 	//Determines if the piece can move left at the given moment
 	bool canMoveLeft(vector<vector<int>>& grid)
 	{
+		Time time = clock.getElapsedTime();
+
+		if (time.asMilliseconds() >= 1000 / 2)
+		{
+			clock.restart();
+		}
+
 		for (int i = 0; i < sprites.size(); i++)
 		{
 			if (sprites[i].getPosition().x == 225)
@@ -307,7 +315,7 @@ public:
 			}
 		}
 
-		if (!canMoveDown(grid))
+		if (!canMoveDown(grid) && time.asMilliseconds() >= 500 / 2)
 		{
 			return false;
 		}
@@ -318,6 +326,12 @@ public:
 	//Determines if the piece can move right at the given moment
 	bool canMoveRight(vector<vector<int>>& grid)
 	{
+		Time time = clock.getElapsedTime();
+
+		if (time.asMilliseconds() >= 1000 / 2)
+		{
+			clock.restart();
+		}
 		for (int i = 0; i < sprites.size(); i++)
 		{
 			if (sprites[i].getPosition().x == 540)
@@ -335,7 +349,7 @@ public:
 
 		}
 
-		if (!canMoveDown(grid))
+		if (!canMoveDown(grid) && time.asMilliseconds() >= 500 / 2)
 		{
 			return false;
 		}

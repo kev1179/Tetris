@@ -4,6 +4,27 @@
 using namespace std;
 using namespace sf;
 
+    void Menu::getHighScores(vector<int>& scores, ifstream& file)
+    {
+        string line;
+        while (getline(file, line))
+        {
+            scores.push_back(stoi(line));
+        }
+    }
+
+    string Menu::numAsString(int score, int length)
+    {
+        string returnString = to_string(score);
+        int numLeadingZeroes = returnString.size();
+
+        for (int i = 0; i < length - numLeadingZeroes; i++)
+        {
+            returnString.insert(returnString.begin(), '0');
+        }
+
+        return returnString;
+    }
 
     Menu::Menu(RenderWindow& window)
     {
@@ -15,6 +36,10 @@ using namespace sf;
         //RenderWindow window(sf::VideoMode(800, 750), "Tetris");
         Texture blockArt;
         blockArt.loadFromFile("menu_background.jpg");
+        vector<int> topScores;
+        ifstream file("high_scores.txt");
+        getHighScores(topScores, file);
+        file.close();
 
         Sprite background;
         background.setTexture(blockArt);
@@ -55,6 +80,40 @@ using namespace sf;
         bool leftPressed = false;
         bool rightPressed = false;
         int level = 0;
+
+        vector<Text> highScoreText;
+        for (int i = 0; i < 3; i++)
+        {
+            Text temp;
+            temp.setFont(font);
+            temp.setString(numAsString(topScores[i],6));
+            temp.setPosition(300, 590 + 50 * i);
+            temp.setScale(2, 2);
+            
+            highScoreText.push_back(temp);
+        }
+        Text scoreHeader;
+        scoreHeader.setFont(font);
+        scoreHeader.setString("Top 3 Scores");
+        scoreHeader.setPosition(300, 570);
+        scoreHeader.setScale(1.1, 1.1);
+        highScoreText.push_back(scoreHeader);
+
+        RectangleShape highScoreBG;
+        highScoreBG.setSize(Vector2f(240, 200));
+        highScoreBG.setFillColor(Color::Black);
+        highScoreBG.setPosition(280, 570);
+
+        Text levelHeader;
+        levelHeader.setFont(font);
+        levelHeader.setString("Select Level");
+        levelHeader.setPosition(300, 100);
+        levelHeader.setScale(1.1, 1.1);
+
+        RectangleShape levelHeaderBG;
+        levelHeaderBG.setSize(Vector2f(240, 50));
+        levelHeaderBG.setFillColor(Color::Black);
+        levelHeaderBG.setPosition(280, 100);
 
         while (window->isOpen())
         {
@@ -116,6 +175,16 @@ using namespace sf;
             {
                 window->draw(levelText[i]);
             }
+
+            window->draw(highScoreBG);
+
+            for (int i = 0; i < highScoreText.size(); i++)
+            {
+                window->draw(highScoreText[i]);
+            }
+
+            window->draw(levelHeaderBG);
+            window->draw(levelHeader);
 
             window->display();
         }

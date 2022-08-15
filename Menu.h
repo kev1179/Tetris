@@ -9,6 +9,9 @@ class Menu
 {
 private:
     RenderWindow* window;
+    void getHighScores(vector<int>& scores, ifstream& file);
+    string numAsString(int score, int length);
+
 public:
 
     Menu(RenderWindow& window);

@@ -1,25 +1,24 @@
-#pragma once
 #include <iostream>
 #include "Menu.h"
 #include <SFML/Graphics.hpp>
-#include "RNG.h"
+#include "MISC/RNG.h"
 #include <vector>
 #include <unordered_map>
-#include "TPiece.h"
-#include "Piece.h"
-#include "JPiece.h"
-#include "ZPiece.h"
-#include "Square.h"
-#include "SPiece.h"
-#include "LPiece.h"
-#include "Line.h"
+#include "Pieces/TPiece.h"
+#include "Pieces/Piece.h"
+#include "Pieces/JPiece.h"
+#include "Pieces/ZPiece.h"
+#include "Pieces/Square.h"
+#include "Pieces/SPiece.h"
+#include "Pieces/LPiece.h"
+#include "Pieces/Line.h"
 #include <queue>
 #include <fstream>
 
 using namespace std;
 using namespace sf;
 
-    //Initializes empty 10x20 grid
+    //Initializes empty 10x20 grid.
     void Game::initGrid(vector<vector<int>>& grid)
     {
         vector<int> row = { 0,0,0,0,0,0,0,0,0,0 };
@@ -30,7 +29,7 @@ using namespace sf;
         }
     }
 
-    //Helper function to help print current grid for debugging purposes
+    //Helper function to help print current grid for debugging purposes.
     void Game::printGrid(vector<vector<int>>& grid)
     {
         for (int i = 0; i < grid.size(); i++)
@@ -43,7 +42,7 @@ using namespace sf;
         }
     }
 
-    //Function that takes in the grid of pieces and draws the squares that are present at each location
+    //Function that takes in the grid of pieces and draws the squares that are present at each location.
     void Game::drawGrid(RenderWindow& window, vector<vector<int>>& grid, Texture& gameArt)
     {
         unordered_map<int, IntRect> squares;
@@ -73,7 +72,7 @@ using namespace sf;
         }
     }
 
-    //Recursive function that shifts all the lines in the grid down after a line has been cleared
+    //Recursive function that shifts all the lines in the grid down after a line has been cleared.
     void Game::downShift(vector<vector<int>>& grid, int clearedRow)
     {
         if (clearedRow == -1)
@@ -128,6 +127,7 @@ using namespace sf;
         }
     }
 
+    //Helper function that converts a number into a string of a certain length. For example, numAsString(12,6) would return 000012.
     string Game::numAsString(int score, int length)
     {
         string returnString = to_string(score);
@@ -141,6 +141,7 @@ using namespace sf;
         return returnString;
     }
 
+    //Checks if the game is over by seeing if there are pieces in the top row of the 2D vector.
     bool Game::isGameOver(vector<vector<int>>& grid)
     {
         vector<int> topRow = grid[0];
@@ -155,6 +156,7 @@ using namespace sf;
         return false;
     }
 
+    //Reads the high_scores.txt file and places the top 3 highest scores into a vector for easy access.
     void Game::readHighScores(ifstream& file, vector<int>& scores)
     {
         string line;
@@ -164,11 +166,18 @@ using namespace sf;
         }
     }
 
+    //Updates the high scores after the game is over.
     void Game::updateHighScore(vector<int>& scores, int score)
     {
-        ofstream file("high_scores.txt");
+        ofstream file("MISC/high_scores.txt");
         bool done = false;
         scores.push_back(score);
+
+        /*The algorthim here is to first add the current score in question to the end of the vector.We then sort the vector from least to
+        greatest. Then, it removes the first element from the sorted vector which basically just removes the smallest element. Then, the
+        vector is resorted, this time greatest to least and then this vector is written to the file to have the scores in a top 3 greatest
+        to least format.*/
+
         std::sort(scores.begin(), scores.end());
         scores.erase(scores.begin());
         std::sort(scores.begin(), scores.end(), greater<>());
@@ -180,21 +189,44 @@ using namespace sf;
         file.close();
     }
 
+    /*Constructor for game object.initalizes the game leveland passes the game window in by referenceand initalizes a pointer that points to
+    the game window in memory.*/
     Game::Game(int level, RenderWindow& window)
     {
         this->level = level;
         this->window = &window;
     }
 
+    //Runs the game and displays the graphics to the screen. Performs game logic as well.
     void Game::runGame()
     {
+        //Creates object used for random number generation
         RNG rng;
+
+        //Creates the 2D vector used to represent the grid and fills it with zeroes
         vector<vector<int>> grid;
         initGrid(grid);
 
+        //initalizes variables used for tracking the score and total number of lines cleared
         int score = 0;
         int totalLinesCleared = 0;
+
+        //Creates vector to store the top 3 highest scores and then reads them from a file to fill the vector
         vector<int> highestScores;
+        ifstream highScores("MISC/high_scores.txt");
+        readHighScores(highScores, highestScores);
+        highScores.close();
+
+        //Hashmap that keeps track of how many of each type of piece has been generated. 
+        /* KEY:
+        *  1 - TPiece
+        *  2 - JPiece
+        *  3 - ZPiece
+        *  4 - Square
+        *  5 - SPiece
+        *  6 - LPiece
+        *  7 - Line
+        */
         unordered_map<int, int> statTracker;
         statTracker[1] = 0;
         statTracker[2] = 0;
@@ -204,6 +236,8 @@ using namespace sf;
         statTracker[6] = 0;
         statTracker[7] = 0;
 
+        //Hashmap that sets the speed for each level. The formula here is that the base is 20 (lower means less time to spawn aka faster)
+        //So it starts at level 19, sets the speed to 20 and it goes up by 20 each iteration down to 0
         unordered_map<int,int> levelSpeed;
         int tracker = 1;
         for (int i = 19; i >= 0; i--)
@@ -212,15 +246,13 @@ using namespace sf;
             tracker++;
         }
 
-        ifstream highScores("high_scores.txt");
-        readHighScores(highScores, highestScores);
-        highScores.close();
-
+        //Loads art used in game
         Texture gameArt;
-        gameArt.loadFromFile("sprites.png");
+        gameArt.loadFromFile("Assets/sprites.png");
         Texture background;
-        background.loadFromFile("background.jpg");
+        background.loadFromFile("Assets/background.jpg");
 
+        //Booleans and tracker variables used to monitor user input
         bool xPressed = false;
         bool zPressed = false;
         bool leftPressed = false;
@@ -228,15 +260,18 @@ using namespace sf;
         int keyDelayCounter = 0;
         int keyDelay = 70;
 
+        //Black background used for playing field
         RectangleShape gameBackground;
         gameBackground.setSize(Vector2f(350, 700));
         gameBackground.setFillColor(Color::Black);
         gameBackground.setPosition(225, 50);
 
+        //Background image in the game
         Sprite* backgroundImage = new Sprite;
         backgroundImage->setTexture(background);
         backgroundImage->setTextureRect(IntRect(0, 0, 800, 750));
 
+        //Hashmap that reads the sprite data and sets the rectangle corresponding to the preview image for each piece
         unordered_map<int, IntRect> previewPieces;
         previewPieces[1] = IntRect(240, 688, 23, 15);
         previewPieces[2] = IntRect(240, 728, 23, 15);
@@ -246,16 +281,22 @@ using namespace sf;
         previewPieces[6] = IntRect(240, 888, 23, 15);
         previewPieces[7] = IntRect(276, 932, 31, 7);
 
+        //Black background for the piece preview
         RectangleShape previewSquare;
         previewSquare.setSize(Vector2f(180, 180));
         previewSquare.setFillColor(Color::Black);
         previewSquare.setPosition(600, 300);
 
+        //This is the activepiece in the game or the one the player currently has control of
         Piece* activePiece = nullptr;
 
+        //This generates the first two pieces
         int firstPiece = rng.randomInt(1, 8);
         int nextPiece = rng.randomInt(1, 8);
 
+        //The following code decides which piece to generate first and also updates the tracker that keeps track how many of each piece has
+        //been generated. The different piece types being generated was achieved using polymorphism. The number generated determines what type 
+        //of object to generate
         if (firstPiece == 1)
         {
             TPiece* temp = new TPiece(gameArt);
@@ -311,58 +352,69 @@ using namespace sf;
             activePiece = &temp;
         }
 
-        queue<int> pieceLine; //queue of size 2, front is the active piece, back is the next piece in line that will be displayed in the preview
+        //queue of size 2, front is the active piece, back is the next piece in line that will be displayed in the preview
+        queue<int> pieceLine; 
         pieceLine.push(firstPiece);
         pieceLine.push(nextPiece);
 
+        //Sprite for the preview image of the next piece
         Sprite previewArt;
         previewArt.setTexture(gameArt);
         previewArt.setTextureRect(previewPieces[nextPiece]);
         previewArt.setPosition(642.5 - 17.5, 385 - 17.5);
         previewArt.setScale(5, 5);
 
+        //Clock object used for timing purposes
         Clock clock;
         Clock inputTracker;
         int movementFactor = 300;
 
+        //Loads up font from file
         Font textFont;
-        textFont.loadFromFile("text_font.ttf");
+        textFont.loadFromFile("Assets/text_font.ttf");
 
+        //Black background for where score is displayed
         RectangleShape scoreBox;
         scoreBox.setSize(Vector2f(180, 180));
         scoreBox.setFillColor(Color::Black);
         scoreBox.setPosition(600, 30);
 
+        //Displays the score as text on screen
         Text scoreDisplay;
         scoreDisplay.setFont(textFont);
         scoreDisplay.setString(numAsString(score, 6));
         scoreDisplay.setCharacterSize(50);
         scoreDisplay.setPosition(642.5 - 35, 150);
 
+        //Text that says "SCORE"
         Text scoreText;
         scoreText.setFont(textFont);
         scoreText.setString("SCORE");
         scoreText.setCharacterSize(50);
         scoreText.setPosition(642.5 - 22.75, 110);
 
+        //Displays high score as in game text
         Text topScoreDisplay;
         topScoreDisplay.setFont(textFont);
         topScoreDisplay.setString(numAsString(highestScores[0], 6));
         topScoreDisplay.setCharacterSize(50);
         topScoreDisplay.setPosition(642.5 - 35, 70);
 
+        //Displays text that says "TOP" on screen
         Text topScoreText;
         topScoreText.setFont(textFont);
         topScoreText.setString("TOP");
         topScoreText.setCharacterSize(50);
         topScoreText.setPosition(642.5, 30);
 
+        //Text that shows how many lines have been cleared in total during the game
         Text lineText;
         lineText.setFont(textFont);
         lineText.setString("LINES " + numAsString(totalLinesCleared, 3));
         lineText.setCharacterSize(50);
         lineText.setPosition(300, -10);
 
+        //vector that houses the images for the stat section pieces on the left
         vector<Sprite> statPieces;
         int difference = 30;
         for (int i = 1; i <= 7; i++)
@@ -385,11 +437,13 @@ using namespace sf;
             statPieces.push_back(temp);
         }
 
+        //Black background on the left
         RectangleShape statBox;
         statBox.setSize(Vector2f(190, 525));
         statBox.setFillColor(Color::Black);
         statBox.setPosition(50 - difference, 150);
 
+        //Populates vector with text for each type of piece displaying how many of each have been generated
         vector<Text> statDisplay;
 
         for (int i = 0; i < 7; i++)
@@ -406,15 +460,17 @@ using namespace sf;
             statDisplay.push_back(temp);
         }
 
+        //Game Loop
         while (window->isOpen())
         {
 
-
+            //Sets the text on the left to the appropriate values
             for (int i = 0; i < statDisplay.size(); i++)
             {
                 statDisplay[i].setString(numAsString(statTracker[i + 1], 3));
             }
 
+            //Gets the time since last clock reset
             Time time1 = clock.getElapsedTime();
             Time time2 = clock.getElapsedTime();
 
@@ -425,6 +481,7 @@ using namespace sf;
                     window->close();
             }
 
+            //Performs the piece falling, calls the hashmap levelSpeed to determine the speed based off the level
             if (time1.asMilliseconds() >= levelSpeed[level] && time1.asMilliseconds() < 1000 && activePiece->canMoveDown(grid))
             {
                 activePiece->fall();
@@ -433,7 +490,9 @@ using namespace sf;
 
 
 
-            //*********************** USER INPUT *************************************88
+            //*********************** USER INPUT *************************************
+
+            //Performs counterclockwise rotation if user presses X key
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::X) && !xPressed)
             {
 
@@ -441,7 +500,7 @@ using namespace sf;
                 xPressed = Keyboard::isKeyPressed(sf::Keyboard::X);
             }
 
-
+            //Performs clockwise rotation if user presses Z key
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && !zPressed)
             {
 
@@ -449,16 +508,7 @@ using namespace sf;
                 zPressed = Keyboard::isKeyPressed(sf::Keyboard::Z);
             }
 
-
-            /*
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && activePiece->canMoveLeft(grid) && !leftPressed)
-            {
-
-                activePiece->move("left");
-                leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
-
-            }
-             */
+            //Moves piece left if user presses left arrow key
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && activePiece->canMoveLeft(grid))
             {
                 keyDelayCounter++;
@@ -471,14 +521,8 @@ using namespace sf;
                 }
 
             }
-            /*
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && activePiece->canMoveRight(grid) && !rightPressed)
-            {
-                activePiece->move("right");
-                rightPressed = Keyboard::isKeyPressed(sf::Keyboard::Right);
 
-            }
-            */
+            //Moves piece right if user presses right arrow key
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && activePiece->canMoveRight(grid))
             {
                 keyDelayCounter++;
@@ -491,6 +535,7 @@ using namespace sf;
                 }
             }
 
+            //Moves piece down if user presses down arrow key
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && activePiece->canMoveDown(grid))
             {
                 keyDelayCounter++;
@@ -504,26 +549,34 @@ using namespace sf;
 
             }
 
+            //Updates state of key press boolean tracker variables
             xPressed = Keyboard::isKeyPressed(sf::Keyboard::X);
             zPressed = Keyboard::isKeyPressed(sf::Keyboard::Z);
             leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
             rightPressed = Keyboard::isKeyPressed(sf::Keyboard::Right);
 
+            //Code that executes if a piece lands on the floor or another piece and it is time to generate a new piece
             if (!activePiece->canMoveDown(grid) && !isGameOver(grid) && !activePiece->canMoveLeft(grid) && !activePiece->canMoveRight(grid))
             {
+                //Updates the queue and generates a new piece and places it into the back of the queue
+                //Also uses this info to display the correct preview piece
                 pieceLine.pop();
                 int previewPiece = rng.randomInt(1, 8);
                 pieceLine.push(previewPiece);
                 int generatedPiece = pieceLine.front();
                 previewArt.setTextureRect(previewPieces[previewPiece]);
 
+                //Updates the grid upon landing and clears any lines needed as well as updates the score and line counter
                 activePiece->updateGrid(grid);
                 clearLines(grid, level, score, totalLinesCleared);
                 scoreDisplay.setString(numAsString(score, 6));
                 lineText.setString("LINES " + numAsString(totalLinesCleared, 3));
 
+                //deallocates the memory used for activePiece before reassigning it
                 delete activePiece;
 
+                //Performs piece generation again and assigns that to activePiece
+                //Pieces were created on the heap because of memory concerns
                 if (generatedPiece == 1)
                 {
                     TPiece* temp2 = new TPiece(gameArt);
@@ -575,11 +628,13 @@ using namespace sf;
 
             }
 
+            //Code that runs if the game is over
             else if (isGameOver(grid))
             {
+                //if the user hits enter, take user to menu, update high score if needed, and reset game data
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
                 {
-                    ofstream writeHighScore("high_scores.txt");
+                    ofstream writeHighScore("MISC/high_scores.txt");
                     updateHighScore(highestScores, score);
 
                     for (int i = 0; i < grid.size(); i++)
@@ -650,6 +705,7 @@ using namespace sf;
 
         }
 
+        //Deallocates memory used for the background image
         delete backgroundImage;
 
     }

@@ -4,6 +4,7 @@
 using namespace std;
 using namespace sf;
 
+    //Reads the high_scores.txt file to get the top three highest scores and place them into a vector for storage.
     void Menu::getHighScores(vector<int>& scores, ifstream& file)
     {
         string line;
@@ -13,6 +14,7 @@ using namespace sf;
         }
     }
 
+    //Helper function that converts a number into a string of a certain length. For example, numAsString(12,6) would return 000012.
     string Menu::numAsString(int score, int length)
     {
         string returnString = to_string(score);
@@ -26,25 +28,32 @@ using namespace sf;
         return returnString;
     }
 
+    /*Constructor that passes the game window by reference.This prevents a new window from being created when the screen changes.It then
+    initalizes the class variable window which is a pointer to the game window. */
     Menu::Menu(RenderWindow& window)
     {
         this->window = &window;
     }
 
+    //Code that displays the menu screen.
     void Menu::displayMenu()
     {
-        //RenderWindow window(sf::VideoMode(800, 750), "Tetris");
+        //Loads image for the menu background
         Texture blockArt;
-        blockArt.loadFromFile("menu_background.jpg");
+        blockArt.loadFromFile("Assets/menu_background.jpg");
+
+        //Loads up the high scores file and then places them into a vector 
         vector<int> topScores;
-        ifstream file("high_scores.txt");
+        ifstream file("MISC/high_scores.txt");
         getHighScores(topScores, file);
         file.close();
 
+        //Sets the portion of the background image that is displayed
         Sprite background;
         background.setTexture(blockArt);
         background.setTextureRect(IntRect(645, 1035 - 750, 800, 750));
 
+        //Displays the black background for the level select portion
         float bx = 125;
         float by = 200;
         RectangleShape levelSelectBG;
@@ -52,10 +61,12 @@ using namespace sf;
         levelSelectBG.setFillColor(Color::Black);
         levelSelectBG.setPosition(bx, by);
 
+        //Vector to keep all the text for all 19 of the levels displayed
         vector<Text> levelText;
         Font font;
-        font.loadFromFile("text_font.ttf");
+        font.loadFromFile("Assets/text_font.ttf");
 
+        //This is the code that populates the above vector so it can be drawn to the screen later
         float rowShift = 0;
         float x = 0;
         for (int i = 0; i <= 19; i++)
@@ -65,6 +76,7 @@ using namespace sf;
                 rowShift += 100;
                 x = 0;
             }
+            //This is the text for each level number and the position and number is modified upon each iteration
             Text temp;
             temp.setFont(font);
             temp.setString(to_string(i));
@@ -75,12 +87,16 @@ using namespace sf;
 
             levelText.push_back(temp);
         }
+        //This line makes level 0 red and the one currently selected when the program boots up
         levelText[0].setFillColor(Color(255, 0, 0));
 
+        //booleans to keep track of keyboard input
         bool leftPressed = false;
         bool rightPressed = false;
+        //The current level selected in the menu
         int level = 0;
 
+        //This uses the above vector we made containing the top 3 scores and displays them as in game text
         vector<Text> highScoreText;
         for (int i = 0; i < 3; i++)
         {
@@ -92,6 +108,8 @@ using namespace sf;
             
             highScoreText.push_back(temp);
         }
+
+        //Text that says "Top 3 Scores"
         Text scoreHeader;
         scoreHeader.setFont(font);
         scoreHeader.setString("Top 3 Scores");
@@ -99,22 +117,26 @@ using namespace sf;
         scoreHeader.setScale(1.1, 1.1);
         highScoreText.push_back(scoreHeader);
 
+        //Black background for the high scores
         RectangleShape highScoreBG;
         highScoreBG.setSize(Vector2f(240, 200));
         highScoreBG.setFillColor(Color::Black);
         highScoreBG.setPosition(280, 570);
 
+        //Text that says "Select Level"
         Text levelHeader;
         levelHeader.setFont(font);
         levelHeader.setString("Select Level");
         levelHeader.setPosition(300, 100);
         levelHeader.setScale(1.1, 1.1);
 
+        //Black background for the levels
         RectangleShape levelHeaderBG;
         levelHeaderBG.setSize(Vector2f(240, 50));
         levelHeaderBG.setFillColor(Color::Black);
         levelHeaderBG.setPosition(280, 100);
 
+        //Game Loop that displays menu screen
         while (window->isOpen())
         {
             Event event;
@@ -124,6 +146,7 @@ using namespace sf;
                     window->close();
             }
 
+            //Code for changing the currently selected level
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !leftPressed)
             {
                 levelText[level].setFillColor(Color(255, 255, 255));
@@ -141,6 +164,7 @@ using namespace sf;
                 leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
             }
 
+            //Same but if they press right
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !rightPressed)
             {
                 levelText[level].setFillColor(Color(255, 255, 255));
@@ -158,15 +182,18 @@ using namespace sf;
                 rightPressed = Keyboard::isKeyPressed(sf::Keyboard::Right);
             }
 
+            //Starts the game if they press enter
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
             {
                 Game game(level, *window);
                 game.runGame();
                 break;
             }
+
             leftPressed = Keyboard::isKeyPressed(sf::Keyboard::Left);
             rightPressed = Keyboard::isKeyPressed(sf::Keyboard::Right);
 
+            //************************************************* DRAWING ***********************************************
             window->clear();
             window->draw(background);
             window->draw(levelSelectBG);

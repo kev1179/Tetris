@@ -1,9 +1,5 @@
 #pragma once
-#include <SFML/Graphics.hpp>
 #include "Piece.h"
-
-using namespace std;
-using namespace sf;
 
 class TPiece: public Piece {
 

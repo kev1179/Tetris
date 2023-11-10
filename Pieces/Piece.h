@@ -1,6 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "Tpiece.h"
+#include "TPiece.h"
 
 using namespace std;
 using namespace sf;

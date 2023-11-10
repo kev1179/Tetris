@@ -2,19 +2,20 @@
 #include <iostream>
 #include "Menu.h"
 #include <SFML/Graphics.hpp>
-#include "MISC/RNG.h"
+#include "../MISC/RNG.h"
 #include <vector>
 #include <unordered_map>
-#include "Pieces/TPiece.h"
-#include "Pieces/Piece.h"
-#include "Pieces/JPiece.h"
-#include "Pieces/ZPiece.h"
-#include "Pieces/Square.h"
-#include "Pieces/SPiece.h"
-#include "Pieces/LPiece.h"
-#include "Pieces/Line.h"
+#include "../Pieces/TPiece.h"
+#include "../Pieces/Piece.h"
+#include "../Pieces/JPiece.h"
+#include "../Pieces/ZPiece.h"
+#include "../Pieces/Square.h"
+#include "../Pieces/SPiece.h"
+#include "../Pieces/LPiece.h"
+#include "../Pieces/Line.h"
 #include <queue>
 #include <fstream>
+
 
 using namespace std;
 using namespace sf;

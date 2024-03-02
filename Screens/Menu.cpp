@@ -185,8 +185,6 @@ using namespace sf;
             //Starts the game if they press enter
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
             {
-                Game game(level, *window);
-                game.runGame();
                 break;
             }
 
@@ -215,4 +213,6 @@ using namespace sf;
 
             window->display();
         }
+                Game game(level, *window);
+                game.runGame();
     }
